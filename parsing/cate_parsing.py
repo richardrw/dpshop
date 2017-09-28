@@ -2,11 +2,15 @@
 
 import requests
 import random
+import pymongo
 from lxml import etree
-from config import USER_AGENT, PROXY, TIMEOUT
+from config import USER_AGENT, PROXY, TIMEOUT, HOST, PORT
 
 
-shop_data = {}
+#初始化数据库
+client = pymongo.MongoClient('mongod://HOST:PORT/')
+dp = client['dp']
+dpshop = dp['dpshop']
 
 
 #解析网页，提取“标题-星级-评论数-人均价格-各项评分-菜系-商区-详细地址“信息
@@ -79,6 +83,22 @@ def get_cate_from(url):
 	tag_items = [tag_items[i:i+3] for i in range(0,len(tag_items),3)]
 	# for i in tag_items:
 		# print(i)
+
+
+	for title_url, star, review_price, score, tag_area_addr in zip(title_items, star_items, review_price_list, score_items, tag_items):
+		dpshop_msg = {
+		    'title':title_url.attrib['title'],
+		    'url':title_url.attrib['href'],
+		    'star':star.attrib['title'],
+		    'review':review_price[0],
+		    'price':review_price[1],
+		    'score':score,
+		    'tag':tag_area_addr[0],
+		    'area':tag_area_addr[1],
+		    'addr':tag_area_addr[2]
+		}
+		dpshop.insert_one(dpshop_msg)
+
 
 
 url = 'https://www.dianping.com/search/category/219/10/g0r0'
