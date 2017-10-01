@@ -27,9 +27,9 @@ def get_tag1_from(url):
 	tree = etree.HTML(r.text)
 	tag1_items = tree.xpath('//div[@id="classfy"]/a')
 	for i in tag1_items:
-		tag1_title = i.getchildren()[0].text
-		tag1_url = i.attrib['href']
-		tag1 = {'title':tag1_title, 'url':tag1_url}
+		title = i.getchildren()[0].text
+		url = i.attrib['href']
+		tag1 = {'title':title, 'url':url}
 		tag1_url.insert_one(tag1)
 		# print(tag1)
 
@@ -48,9 +48,9 @@ def get_tag2_from(tag1_url):
 		tag2_url.insert_one(tag2)
 	else:
 		for i in tag2_items:
-			tag2_title = i.getchildren()[0].text
-			tag2_url = i.attrib['href']
-			tag2 = {'title':tag2_title, 'url':tag2_url}
+			title = i.getchildren()[0].text
+			url = i.attrib['href']
+			tag2 = {'title':title, 'url':url}
 			tag2_url.insert_one(tag2)
 
 
@@ -64,9 +64,9 @@ def get_addr1_from(tag2_url):
 	tree = etree.HTML(r.text)
 	addr1_items = tree.xpath('//div[@id="region-nav"]/a')
 	for i in addr1_items:
-		addr1_title = i.getchildren()[0].text
-		addr1_url = i.attrib['href']
-		addr1 = {'title':addr1_title, 'url':addr1_url}
+		title = i.getchildren()[0].text
+		url = i.attrib['href']
+		addr1 = {'title':title, 'url':url}
 		addr1_url.insert_one(addr1)
 
 
@@ -84,12 +84,12 @@ def get_addr2_from(addr1_url):
 		addr2_url.insert_one(addr2)
 	else:
 		for i in addr2_items:
-			addr2_title = i.getchildren()[0].text
-			addr2_url = i.attrib['href']
-			addr2 = {'title':addr2_title, 'url':addr2_url}
+			title = i.getchildren()[0].text
+			url = i.attrib['href']
+			addr2 = {'title':title, 'url':url}
 			addr2_url.insert_one(addr2)
 
-			
+
 if __name__ == '__main__':
 	url = 'http://www.dianping.com/search/category/219/10/g0r0'
 	get_tag1_from(url)

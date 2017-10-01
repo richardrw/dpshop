@@ -3,7 +3,7 @@
 import pymongo
 from parsing.cate_parsing import get_tag1_from, get_tag2_from, get_addr1_from, get_addr2_from
 from parsing.shop_parsing import get_msg_from
-from concurrent.futurs import ProcessPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 
 
 client = pymongo.MongoClient('localhost', 27017)
