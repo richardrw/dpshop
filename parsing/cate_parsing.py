@@ -3,6 +3,7 @@
 import requests
 import random
 import pymongo
+import time
 from lxml import etree
 from config import USER_AGENT, PROXY, TIMEOUT, LINKTIME
 
@@ -33,6 +34,7 @@ def get_tag1_from(url):
 			tag1 = {'title':title, 'url':url}
 			tag1_url.insert_one(tag1)
 			# print(tag1)
+		time.sleep(1)
 	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout):
 		global LINKTIME
 		if LINKTIME < 3:
@@ -62,6 +64,7 @@ def get_tag2_from(tag1_url):
 				url = i.attrib['href']
 				tag2 = {'title':title, 'url':url}
 				tag2_url.insert_one(tag2)
+		time.sleep(1)
 	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout):
 		global LINKTIME
 		if LINKTIME < 3:
@@ -87,6 +90,7 @@ def get_addr1_from(tag2_url):
 			url = i.attrib['href']
 			addr1 = {'title':title, 'url':url}
 			addr1_url.insert_one(addr1)
+		time.sleep(1)
 	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout):
 		global LINKTIME
 		if LINKTIME < 3:
@@ -116,6 +120,7 @@ def get_addr2_from(addr1_url):
 				url = i.attrib['href']
 				addr2 = {'title':title, 'url':url}
 				addr2_url.insert_one(addr2)
+		time.sleep(1)
 	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout):
 		global LINKTIME
 		if LINKTIME < 3:

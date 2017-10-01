@@ -3,6 +3,7 @@
 import requests
 import random
 import pymongo
+import time
 from lxml import etree
 from config import USER_AGENT, PROXY, TIMEOUT, LINKTIME
 
@@ -104,6 +105,7 @@ def get_msg_from(addr2_url):
 			}
 			dpshop.insert_one(dpshop_msg)
 			# print(dpshop_msg)
+		time.sleep(1)
 	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout):
 		global LINKTIME
 		if LINKTIME < 3:
