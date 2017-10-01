@@ -25,3 +25,5 @@ PROXY = [
     ]
 
 TIMEOUT = 5
+
+LINKTIME = 3
