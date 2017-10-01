@@ -1,7 +1,8 @@
 #coding=utf-8
 
+
 #伪装浏览器
-USER-AGENT = [
+USER_AGENT = [
     'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Acoo Browser; SLCC1; .NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.0.04506)',
     'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
@@ -11,5 +12,16 @@ USER-AGENT = [
     ]
 
 PROXY = [
-    ''
+    '183.136.218.253:80',
+    '123.147.165.142:80',
+    '123.147.165.144:8080',
+    '123.147.165.142:8080',
+    '123.147.165.144:80',
+    '124.165.252.72:80',
+    '111.62.251.66:8080',
+    '49.119.164.175:80',
+    '211.138.60.25:80',
+    '42.245.252.35:80'
     ]
+
+TIMEOUT = 5

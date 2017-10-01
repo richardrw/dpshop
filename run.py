@@ -21,7 +21,7 @@ print('tag1_url插入完毕')
 
 
 tag1_list = tag1_url.find()
-for tag1 in tag1_url:
+for tag1 in tag1_list:
 	url = tag1['url']
 	get_tag2_from(url)
 print('tag2_url插入完毕')
