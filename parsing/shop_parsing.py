@@ -11,11 +11,15 @@ from config import USER_AGENT, PROXY, TIMEOUT, LINKTIME
 #初始化数据库
 client = pymongo.MongoClient('localhost', 27017)
 dp = client['dp']
-tag1_url = dp['tag1_url']
-tag2_url = dp['tag2_url']
-addr1_url = dp['addr1_url']
-addr2_url = dp['addr2_url']
-dpshop = dp['dpshop']
+# tag1_url = dp['tag1_url']							#存储从start_url中成功爬取到的tag1_url
+# tag2_url = dp['tag2_url']							#存储从tag1_url中成功爬取到的tag2_url
+# crawly_tag1_url_bad = dp['crawly_tag1_url_bad']			#存储爬取失败的tag1_url
+# addr1_url = dp['addr1_url']							#存储从tag2_url中成功爬取到的addr1_url
+# crawly_tag2_url_bad = dp['crawly_tag2_url_bad']			#存储爬取失败的tag2_url
+# addr2_url = dp['addr2_url']							#存储从addr1_url中成功爬取到的addr2_url
+# crawly_addr1_url_bad = dp['crawly_addr1_url_bad']		#存储爬取失败的addr1_url
+dpshop = dp['dpshop']								#存储从addr2中成功爬取到的dpshop_msg
+crawly_addr2_url_bad = dp['crawly_addr2_url_bad']		#存储爬取失败的addr2_url
 
 
 #解析网页，提取“标题-星级-评论数-人均价格-各项评分-菜系-商区-详细地址“信息
@@ -106,13 +110,15 @@ def get_msg_from(addr2_url):
 			dpshop.insert_one(dpshop_msg)
 			# print(dpshop_msg)
 		time.sleep(1)
-	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout):
+	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
 		global LINKTIME
 		if LINKTIME < 3:
 			pirnt('爬取失败，现在重新链接')
 			get_msg_from(addr2_url)
 			LINKTIME -= 1
 		else:
+			addr2_bad = {'url':addr2_url, 'status':'bad'}
+			crawly_addr2_url_bad.insert_one(addr2_bad)
 			print('{}爬取失败'.format(addr2_url))
 
 

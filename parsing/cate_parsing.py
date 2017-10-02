@@ -11,31 +11,36 @@ from config import USER_AGENT, PROXY, TIMEOUT, LINKTIME
 #初始化数据库
 client = pymongo.MongoClient('localhost', 27017)
 dp = client['dp']
-tag1_url = dp['tag1_url']
-tag2_url = dp['tag2_url']
-addr1_url = dp['addr1_url']
-addr2_url = dp['addr2_url']
-dpshop = dp['dpshop']
+tag1_url = dp['tag1_url']							#存储从start_url中成功爬取到的tag1_url
+tag2_url = dp['tag2_url']							#存储从tag1_url中成功爬取到的tag2_url
+crawly_tag1_url_bad = dp['crawly_tag1_url_bad']			#存储爬取失败的tag1_url
+addr1_url = dp['addr1_url']							#存储从tag2_url中成功爬取到的addr1_url
+crawly_tag2_url_bad = dp['crawly_tag2_url_bad']			#存储爬取失败的tag2_url
+addr2_url = dp['addr2_url']							#存储从addr1_url中成功爬取到的addr2_url
+crawly_addr1_url_bad = dp['crawly_addr1_url_bad']		#存储爬取失败的addr1_url
+dpshop = dp['dpshop']								#存储从addr2中成功爬取到的dpshop_msg
+crawly_addr2_url_bad = dp['crawly_addr2_url_bad']		#存储爬取失败的addr2_url
+
 
 
 #获取一级菜系
-def get_tag1_from(url):
+def get_tag1_from(start_url):
 	headers = random.choice(USER_AGENT)
 	proxies = {'http':random.choice(PROXY)}
 	s = requests.Session()
 	s.headers.update({'User-Agent':headers})
 	try:
-		r = s.get(url, proxies=proxies, timeout=TIMEOUT)
+		r = s.get(start_url, proxies=proxies, timeout=TIMEOUT)
 		tree = etree.HTML(r.text)
 		tag1_items = tree.xpath('//div[@id="classfy"]/a')
 		for i in tag1_items:
 			title = i.getchildren()[0].text
 			url = i.attrib['href']
-			tag1 = {'title':title, 'url':url}
+			tag1 = {'title':title, 'url':url, 'status':'ok'}
 			tag1_url.insert_one(tag1)
 			# print(tag1)
 		time.sleep(1)
-	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout):
+	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
 		global LINKTIME
 		if LINKTIME < 3:
 			pirnt('爬取失败，现在重新链接')
@@ -62,16 +67,18 @@ def get_tag2_from(tag1_url):
 			for i in tag2_items:
 				title = i.getchildren()[0].text
 				url = i.attrib['href']
-				tag2 = {'title':title, 'url':url}
+				tag2 = {'title':title, 'url':url, 'status':'ok'}
 				tag2_url.insert_one(tag2)
 		time.sleep(1)
-	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout):
+	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
 		global LINKTIME
 		if LINKTIME < 3:
 			pirnt('爬取失败，现在重新链接')
 			get_tag2_from(tag1_url)
 			LINKTIME -= 1
 		else:
+			tag1_bad = {'url':tag1_url, 'status':'bad'}
+			crawly_tag1_url_bad.insert_one(tag1_bad)
 			print('{}爬取失败'.format(tag1_url))
 
 
@@ -91,13 +98,15 @@ def get_addr1_from(tag2_url):
 			addr1 = {'title':title, 'url':url}
 			addr1_url.insert_one(addr1)
 		time.sleep(1)
-	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout):
+	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
 		global LINKTIME
 		if LINKTIME < 3:
 			pirnt('爬取失败，现在重新链接')
 			get_addr1_from(tag2_url)
 			LINKTIME -= 1
 		else:
+			tag2_bad = {'url':tag2_url, 'status':'bad'}
+			crawly_tag2_url_bad.insert_one(tag2_bad)
 			print('{}爬取失败'.format(tag2_url))
 
 
@@ -121,13 +130,15 @@ def get_addr2_from(addr1_url):
 				addr2 = {'title':title, 'url':url}
 				addr2_url.insert_one(addr2)
 		time.sleep(1)
-	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout):
+	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
 		global LINKTIME
 		if LINKTIME < 3:
 			pirnt('爬取失败，现在重新链接')
 			get_addr2_from(addr1_url)
 			LINKTIME -= 1
 		else:
+			addr1_bad = {'url':addr1_url, 'status':'bad'}
+			crawly_addr1_url_bad.insert_one(addr1_bad)
 			print('{}爬取失败'.format(addr1_url))
 
 
