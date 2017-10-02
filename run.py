@@ -1,22 +1,22 @@
 #coding=utf-8
 
-# import pymongo
+import pymongo
 from parsing.cate_parsing import get_tag1_from, get_tag2_from, get_addr1_from, get_addr2_from
 from parsing.shop_parsing import get_msg_from
 from concurrent.futures import ProcessPoolExecutor
 
 
-# client = pymongo.MongoClient('localhost', 27017)
-# dp = client['dp']
-# tag1_url = dp['tag1_url']							#存储从start_url中成功爬取到的tag1_url
-# tag2_url = dp['tag2_url']							#存储从tag1_url中成功爬取到的tag2_url
-# crawly_tag1_url_bad = dp['crawly_tag1_url_bad']			#存储爬取失败的tag1_url
-# addr1_url = dp['addr1_url']							#存储从tag2_url中成功爬取到的addr1_url
-# crawly_tag2_url_bad = dp['crawly_tag2_url_bad']			#存储爬取失败的tag2_url
-# addr2_url = dp['addr2_url']							#存储从addr1_url中成功爬取到的addr2_url
-# crawly_addr1_url_bad = dp['crawly_addr1_url_bad']		#存储爬取失败的addr1_url
-# dpshop = dp['dpshop']								#存储从addr2中成功爬取到的dpshop_msg
-# crawly_addr2_url_bad = dp['crawly_addr2_url_bad']		#存储爬取失败的addr2_url
+client = pymongo.MongoClient('localhost', 27017)
+dp = client['dp']
+tag1_url = dp['tag1_url']							#存储从start_url中成功爬取到的tag1_url
+tag2_url = dp['tag2_url']							#存储从tag1_url中成功爬取到的tag2_url
+crawly_tag1_url_bad = dp['crawly_tag1_url_bad']			#存储爬取失败的tag1_url
+addr1_url = dp['addr1_url']							#存储从tag2_url中成功爬取到的addr1_url
+crawly_tag2_url_bad = dp['crawly_tag2_url_bad']			#存储爬取失败的tag2_url
+addr2_url = dp['addr2_url']							#存储从addr1_url中成功爬取到的addr2_url
+crawly_addr1_url_bad = dp['crawly_addr1_url_bad']		#存储爬取失败的addr1_url
+dpshop = dp['dpshop']								#存储从addr2中成功爬取到的dpshop_msg
+crawly_addr2_url_bad = dp['crawly_addr2_url_bad']		#存储爬取失败的addr2_url
 
 
 start_url = 'http://www.dianping.com/search/category/219/10/g0r0'
