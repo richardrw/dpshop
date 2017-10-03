@@ -22,6 +22,8 @@ dpshop = dp['dpshop']								#存储从addr2中成功爬取到的dpshop_msg
 crawly_addr2_url_bad = dp['crawly_addr2_url_bad']		#存储爬取失败的addr2_url
 
 
+global LINKTIME
+
 
 #获取一级菜系
 def get_tag1_from(start_url):
@@ -39,11 +41,11 @@ def get_tag1_from(start_url):
 			tag1 = {'title':title, 'url':url, 'status':'ok'}
 			tag1_url.insert_one(tag1)
 			# print(tag1)
+		LINKTIME = 3    #重置LINKTIME
 		time.sleep(1)
 	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-		global LINKTIME
-		if LINKTIME < 3:
-			pirnt('爬取失败，现在重新链接')
+		if LINKTIME > 0:
+			print('爬取失败，现在重新链接')
 			get_tag1_from(url)
 			LINKTIME -= 1
 		else:
@@ -61,7 +63,7 @@ def get_tag2_from(tag1_url):
 		tree = etree.HTML(r.text)
 		tag2_items = tree.xpath('//div[@id="classfy-sub"]/a')
 		if len(tag2_items) == 0:
-			tag2 = {'title':'None', 'url':tag1_url}
+			tag2 = {'title':'None', 'url':tag1_url, 'status':'tag1_not_sub'}
 			tag2_url.insert_one(tag2)
 		else:
 			for i in tag2_items:
@@ -69,11 +71,11 @@ def get_tag2_from(tag1_url):
 				url = i.attrib['href']
 				tag2 = {'title':title, 'url':url, 'status':'ok'}
 				tag2_url.insert_one(tag2)
+		LINKTIME = 3    #重置LINKTIME
 		time.sleep(1)
 	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-		global LINKTIME
-		if LINKTIME < 3:
-			pirnt('爬取失败，现在重新链接')
+		if LINKTIME > 0:
+			print('爬取失败，现在重新链接')
 			get_tag2_from(tag1_url)
 			LINKTIME -= 1
 		else:
@@ -97,11 +99,11 @@ def get_addr1_from(tag2_url):
 			url = i.attrib['href']
 			addr1 = {'title':title, 'url':url}
 			addr1_url.insert_one(addr1)
+		LINKTIME = 3    #重置LINKTIME
 		time.sleep(1)
 	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-		global LINKTIME
-		if LINKTIME < 3:
-			pirnt('爬取失败，现在重新链接')
+		if LINKTIME > 0:
+			print('爬取失败，现在重新链接')
 			get_addr1_from(tag2_url)
 			LINKTIME -= 1
 		else:
@@ -121,7 +123,7 @@ def get_addr2_from(addr1_url):
 		tree = etree.HTML(r.text)
 		addr2_items = tree.xpath('//div[@id="region-nav-sub"]/a')
 		if len(addr2_items) == 0:
-			addr2 = {'title':'None', 'url':addr1_url}
+			addr2 = {'title':'None', 'url':addr1_url, 'status':'addr1_not_sub'}
 			addr2_url.insert_one(addr2)
 		else:
 			for i in addr2_items:
@@ -129,11 +131,11 @@ def get_addr2_from(addr1_url):
 				url = i.attrib['href']
 				addr2 = {'title':title, 'url':url}
 				addr2_url.insert_one(addr2)
+		LINKTIME = 3    #重置LINKTIME
 		time.sleep(1)
 	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
-		global LINKTIME
-		if LINKTIME < 3:
-			pirnt('爬取失败，现在重新链接')
+		if LINKTIME > 0:
+			print('爬取失败，现在重新链接')
 			get_addr2_from(addr1_url)
 			LINKTIME -= 1
 		else:
