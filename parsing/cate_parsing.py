@@ -22,11 +22,12 @@ dpshop = dp['dpshop']								#存储从addr2中成功爬取到的dpshop_msg
 crawly_addr2_url_bad = dp['crawly_addr2_url_bad']		#存储爬取失败的addr2_url
 
 
-global LINKTIME
+# global LINKTIME
 
 
 #获取一级菜系
 def get_tag1_from(start_url):
+	global LINKTIME
 	headers = random.choice(USER_AGENT)
 	proxies = {'http':random.choice(PROXY)}
 	s = requests.Session()
@@ -46,14 +47,15 @@ def get_tag1_from(start_url):
 	except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
 		if LINKTIME > 0:
 			print('爬取失败，现在重新链接')
-			get_tag1_from(url)
+			get_tag1_from(start_url)
 			LINKTIME -= 1
 		else:
-			print('{}爬取失败'.format(url))
+			print('{}爬取失败'.format(start_url))
 
 
 #获取二级菜系
 def get_tag2_from(tag1_url):
+	global LINKTIME
 	headers = random.choice(USER_AGENT)
 	proxies = {'http':random.choice(PROXY)}
 	s = requests.Session()
@@ -86,6 +88,7 @@ def get_tag2_from(tag1_url):
 
 #获取二级菜系下的一级地址
 def get_addr1_from(tag2_url):
+	global LINKTIME
 	headers = random.choice(USER_AGENT)
 	proxies = {'http':random.choice(PROXY)}
 	s = requests.Session()
@@ -114,6 +117,7 @@ def get_addr1_from(tag2_url):
 
 #获取二级菜系下的二级地址
 def get_addr2_from(addr1_url):
+	global LINKTIME
 	headers = random.choice(USER_AGENT)
 	proxies = {'http':random.choice(PROXY)}
 	s = requests.Session()
