@@ -275,7 +275,7 @@ class Get_Tag_Addr(object):
             addr2_items = tree.xpath('//div[@id="region-nav-sub"]/a')
             if len(addr2_items) == 0:
                 addr2_list.append('not_sub')
-                addr2 = {'tag':tag2, 'addr':addr2_list, 'url':addr1_url, 'status':'addr1_not_sub'}
+                addr2 = {'tag': tag2, 'addr': addr2_list, 'url': addr1_url, 'status': 'addr1_not_sub'}
                 self.addr2_url_db.insert_one(addr2)
             else:
                 for i in addr2_items:
@@ -291,9 +291,9 @@ class Get_Tag_Addr(object):
             if self.linktime > 0:
                 print('爬取失败，现在重新链接')
                 self.get_addr2_from(addr1_url)
-                linktime -= 1
+                self.linktime -= 1
             else:
-                addr1_bad = {'tag':tag2, 'addr':addr1, 'url':addr1_url, 'status':'bad'}
+                addr1_bad = {'tag':tag2, 'addr': addr1, 'url': addr1_url, 'status': 'bad'}
                 self.crawly_addr1_url_bad.insert_one(addr1_bad)
                 print('{}爬取失败'.format(addr1_url))
 

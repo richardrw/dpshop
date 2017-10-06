@@ -2,7 +2,7 @@
 
 import pymongo
 from parsing.cate_parsing import Get_Tag_Addr
-from parsing.shop_parsing import get_all_msg_from
+from parsing.shop_parsing import GetAllMsg
 from concurrent.futures import ProcessPoolExecutor
 
 # client = pymongo.MongoClient('localhost', 27017)
@@ -78,6 +78,7 @@ from concurrent.futures import ProcessPoolExecutor
 if __name__ == '__main__':
     start_url = 'http://www.dianping.com/search/category/219/10/g0r0'
     tag_addr_task = Get_Tag_Addr()
+    get_msg_task = GetAllMsg()
 
     # 爬取tag1_url
     tag_addr_task.get_tag1_from(start_url)
@@ -100,3 +101,9 @@ if __name__ == '__main__':
     with ProcessPoolExecutor(max_workers=2) as executor:
         executor.map(tag_addr_task.get_addr2_from, addr1_url_set, chunksize=10)
     print('addr2_url爬取完成')
+
+    # 根据addr2_url爬取商户信息
+    addr2_url_set = set(i['url'] for i in get_msg_task.addr2_url_db.find())
+    with ProcessPoolExecutor(max_workers=2) as executor:
+        executor.map(get_msg_task.get_all_msg_from, addr2_url_set, chunksize=50)
+    print('addr2_url_reslut_url爬取完成')
