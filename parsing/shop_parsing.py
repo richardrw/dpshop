@@ -85,7 +85,7 @@ class GetAllMsg(object):
                 print('请求失败，请在crawly_addr2_url_bad中查看请求失败url')
                 break
             elif status_code == 404:
-                addr2_bad = {'url':result_url, 'status':404}
+                addr2_bad = {'url': result_url, 'status': 404}
                 self.crawly_addr2_url_bad.insert_one(addr2_bad)
                 print('{}没有相关商户'.format(result_url))
                 break
