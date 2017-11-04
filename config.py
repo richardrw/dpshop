@@ -1,7 +1,7 @@
 #coding=utf-8
 
 
-#伪装浏览器
+# 伪装浏览器
 USER_AGENT = [
     'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Acoo Browser; SLCC1; .NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.0.04506)',
     'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
@@ -11,17 +11,18 @@ USER_AGENT = [
     'Mozilla/5.0 (X11; U; Linux x86_64; zh-CN; rv:1.9.2.10) Gecko/20100922 Ubuntu/10.10 (maverick) Firefox/3.6.10'
     ]
 
+# 代理IP
 PROXY = [
     '111.13.111.184:80',
-    '49.119.164.175:80',
+    '116.199.2.210:80',
     '61.136.163.245:3128',
     '116.199.2.210:80',
     '116.199.2.209:80',
     '116.199.115.79:80',
     '116.199.2.196:80',
-    '121.40.199.105:80',
-    '125.77.25.118:80',
-    '122.228.253.55:808'
+    '124.165.252.72:80',
+    '111.62.251.66:8080',
+    '42.51.26.79:3128'
     ]
 
 TIMEOUT = 5

@@ -18,7 +18,7 @@ dp = client['dp']
 
 
 # 爬取一级菜系、二级菜系、二级菜系下的一级地址
-class Get_Tag_Addr(object):
+class GetTagAddr(object):
     headers = random.choice(USER_AGENT)
     proxies = {'http':random.choice(PROXY)}
     s = requests.Session()
@@ -27,11 +27,11 @@ class Get_Tag_Addr(object):
     timeout = TIMEOUT
     tag1_url_db = dp['tag1_url_db']             # 存储从start_url中成功爬取到的tag1_url
     tag2_url_db = dp['tag2_url_db']                    # 存储从tag1_url中成功爬取到的tag2_url
-    crawly_tag1_url_bad = dp['crawly_tag1_url_bad']    # 存储爬取失败的tag1_url
+    crawly_tag1_ok = dp['crawly_tag1_ok']    # 存储爬取成功的tag1_url
     addr1_url_db = dp['addr1_url_db']            # 存储从tag2_url中成功爬取到的addr1_url
-    crawly_tag2_url_bad = dp['crawly_tag2_url_bad']    # 存储爬取失败的tag2_url
+    crawly_tag2_ok = dp['crawly_tag2_ok']    # 存储爬取成功的tag2_url
     addr2_url_db = dp['addr2_url_db']            # 存储从addr1_url中成功爬取到的addr2_url
-    crawly_addr1_url_bad = dp['crawly_addr1_url_bad']  # 存储爬取失败的addr1_url
+    crawly_addr1_ok = dp['crawly_addr1_ok']  # 存储爬取成功的addr1_url
 
 
     def get_tag1_from(self, start_url):
@@ -40,10 +40,10 @@ class Get_Tag_Addr(object):
             tree = etree.HTML(r.text)
             tag1_items = tree.xpath('//div[@id="classfy"]/a')
             for i in tag1_items:
-                tag = i.getchildren()[0].text
+                tag1 = i.getchildren()[0].text
                 url = i.attrib['href']
-                tag1 = {'tag': tag, 'url': url, 'status': 'ok'}
-                self.tag1_url_db.insert_one(tag1)
+                tag1_url_msg = {'tag1': tag1, 'url': url, 'status': 'ok'}
+                self.tag1_url_db.insert_one(tag1_url_msg)
             self.linktime = 3    # 重置linktime
             time.sleep(1)
         except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
@@ -56,23 +56,23 @@ class Get_Tag_Addr(object):
 
 
     def get_tag2_from(self, tag1_url):
-        tag2_list = []
-        tag1 = self.tag1_url_db.find_one({'url': tag1_url})['tag']
-        tag2_list.append(tag1)
+        tag1_url_msg = self.tag1_url_db.find_one({'url': tag1_url})
+        tag1 = tag1_url_msg['tag1']
         try:
             r = self.s.get(tag1_url, proxies=self.proxies, timeout=self.timeout)
             tree = etree.HTML(r.text)
             tag2_items = tree.xpath('//div[@id="classfy-sub"]/a')
             if len(tag2_items) == 0:
-                tag2_list.append('not_sub')
-                tag2 = {'tag': tag2_list, 'url': tag1_url, 'status': 'tag1_not_sub'}
-                self.tag2_url_db.insert_one(tag2)
+                tag2 = 'no_sub'
+                tag2_url_msg = {'tag1': tag1, 'tag2': tag2, 'url': tag1_url, 'status': 'tag1_not_sub'}
+                self.tag2_url_db.insert_one(tag2_url_msg)
             else:
                 for i in tag2_items:
-                    tag = [i.getchildren()[0].text]
+                    tag2 = i.getchildren()[0].text
                     url = i.attrib['href']
-                    tag2 = {'tag': tag2_list+tag, 'url': url, 'status': 'ok'}
-                    self.tag2_url_db.insert_one(tag2)
+                    tag2_url_msg = {'tag1': tag1, 'tag2': tag2, 'url': url, 'status': 'ok'}
+                    self.tag2_url_db.insert_one(tag2_url_msg)
+            self.crawly_tag1_ok.insert_one({'url': tag1_url})
             self.linktime = 3    # 重置linktime
             time.sleep(1)
         except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError):
@@ -81,22 +81,23 @@ class Get_Tag_Addr(object):
                 self.get_tag2_from(tag1_url)
                 self.linktime -= 1
             else:
-                tag1_bad = {'tag': tag1, 'url': tag1_url, 'status': 'bad'}
-                self.crawly_tag1_url_bad.insert_one(tag1_bad)
                 print('{}爬取失败'.format(tag1_url))
 
 
     def get_addr1_from(self, tag2_url):
-        tag2 = self.tag2_url_db.find_one({'url': tag2_url})['tag']
+        tag2_url_msg = self.tag2_url_db.find_one({'url': tag2_url})
+        tag1 = tag2_url_msg['tag1']
+        tag2 = tag2_url_msg['tag2']
         try:
             r = self.s.get(tag2_url, proxies=self.proxies, timeout=self.timeout)
             tree = etree.HTML(r.text)
             addr1_items = tree.xpath('//div[@id="region-nav"]/a')
             for i in addr1_items:
-                addr = i.getchildren()[0].text
+                addr1 = i.getchildren()[0].text
                 url = i.attrib['href']
-                addr1 = {'tag': tag2, 'addr': addr, 'url': url}
-                self.addr1_url_db.insert_one(addr1)
+                addr1_url_msg = {'tag1': tag1, 'tag2': tag2, 'addr1': addr1, 'url': url}
+                self.addr1_url_db.insert_one(addr1_url_msg)
+            self.crawly_tag2_ok.insert_one({'url': tag2_url})
             self.linktime = 3  # 重置linktime
             time.sleep(1)
         except(requests.exceptions.ProxyError, requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout,
@@ -106,31 +107,29 @@ class Get_Tag_Addr(object):
                 self.get_addr1_from(tag2_url)
                 self.linktime -= 1
             else:
-                tag2_bad = {'tag': tag2, 'url': tag2_url, 'status': 'bad'}
-                self.crawly_tag2_url_bad.insert_one(tag2_bad)
                 print('{}爬取失败'.format(tag2_url))
 
 
     def get_addr2_from(self, addr1_url):
-        addr2_list = []
-        addr1_obj = self.addr1_url_db.find_one({'url': addr1_url})
-        tag2 = addr1_obj['tag']
-        addr1 = addr1_obj['addr']
-        addr2_list.append(addr1)
+        addr1_url_msg = self.addr1_url_db.find_one({'url': addr1_url})
+        tag1 = addr1_url_msg['tag1']
+        tag2 = addr1_url_msg['tag2']
+        addr1 = addr1_url_msg['addr1']
         try:
             r = self.s.get(addr1_url, proxies=self.proxies, timeout=self.timeout)
             tree = etree.HTML(r.text)
             addr2_items = tree.xpath('//div[@id="region-nav-sub"]/a')
             if len(addr2_items) == 0:
-                addr2_list.append('not_sub')
-                addr2 = {'tag': tag2, 'addr': addr2_list, 'url': addr1_url, 'status': 'addr1_not_sub'}
-                self.addr2_url_db.insert_one(addr2)
+                addr2 = 'no_sub'
+                addr2_url_msg = {'tag1': tag1, 'tag2': tag2, 'addr1': addr1, 'addr2': addr2, 'url': addr1_url, 'status': 'addr1_not_sub'}
+                self.addr2_url_db.insert_one(addr2_url_msg)
             else:
                 for i in addr2_items:
-                    addr = [i.getchildren()[0].text]
+                    addr2 = i.getchildren()[0].text
                     url = i.attrib['href']
-                    addr2 = {'tag':tag2, 'addr':addr2_list + addr, 'url':url}
-                    self.addr2_url_db.insert_one(addr2)
+                    addr2_url_msg = {'tag1':tag1, 'tag2': tag2, 'addr1':addr1, 'addr2': addr2, 'url':url}
+                    self.addr2_url_db.insert_one(addr2_url_msg)
+            self.crawly_addr1_ok.insert_one({'url': addr1_url})
             self.linktime = 3  # 重置linktime
             time.sleep(1)
         except(
@@ -141,8 +140,6 @@ class Get_Tag_Addr(object):
                 self.get_addr2_from(addr1_url)
                 self.linktime -= 1
             else:
-                addr1_bad = {'tag':tag2, 'addr': addr1, 'url': addr1_url, 'status': 'bad'}
-                self.crawly_addr1_url_bad.insert_one(addr1_bad)
                 print('{}爬取失败'.format(addr1_url))
 
 
