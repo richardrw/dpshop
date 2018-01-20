@@ -79,16 +79,17 @@ def get_msg_from(response, addr2_url):
 def get_all_msg_from(addr2_url):
     for page in range(1, PAGE_NUM_MAX+1):
         result_url = '{}p{}'.format(addr2_url, page)
-        status_code, response = requests_url(result_url)
-        if status_code == 'link_bad':
-            print('请求失败，请在crawly_addr2_url_bad中查看请求失败url')
-            break
-        elif status_code == 404:
-            # addr2_bad = {'url': result_url, 'status': 404}
-            print('{}没有相关商户'.format(result_url))
-            break
-        else:
-            get_msg_from(response, addr2_url)
+        if not crawly_addr2_ok.find_one({'url': result_url}):
+            status_code, response = requests_url(result_url)
+            if status_code == 'link_bad':
+                print('请求失败，请在crawly_addr2_url_bad中查看请求失败url')
+                break
+            elif status_code == 404:
+                # addr2_bad = {'url': result_url, 'status': 404}
+                print('{}没有相关商户'.format(result_url))
+                break
+            else:
+                get_msg_from(response, addr2_url)
 
 
 def requests_url(result_url, linktime=LINKTIME):
